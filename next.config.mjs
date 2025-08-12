@@ -1,4 +1,3 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   // Suprimir advertencias conocidas de Supabase
   webpack: (config, { isServer }) => {

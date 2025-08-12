@@ -46,7 +46,11 @@ export async function fetchInitialData(): Promise<AppStateShape> {
   const supabase = getSupabaseServer()
 
   // Config: si no existe, creamos una por defecto
-  const { data: cfgRows, error: cfgErr } = await supabase.from("pricing_config").select("*").limit(1)
+  const { data: cfgRows, error: cfgErr } = await supabase
+    .from("pricing_config")
+    .select("*")
+    .eq("id", "singleton") // <-- Aseguramos que siempre busque el ID 'singleton'
+    .limit(1)
   if (cfgErr) {
     console.error("Error al cargar configuración inicial:", cfgErr)
     throw new Error(`Error al cargar configuración: ${cfgErr.message}`)
@@ -163,10 +167,14 @@ export async function createReservation(
       nombre: `Limpieza - ${payload.nombreCliente} (${payload.fecha})`,
       monto: cfg.costoLimpiezaFijo,
       fecha: payload.fecha,
-      // Puedes añadir una referencia a la reserva si quieres: reservation_id: reservationId
     }
     const { error: expErr } = await supabase.from("expenses").insert(expenseRow)
-    if (expErr) console.error("Error al registrar gasto de limpieza:", expErr) // No bloqueamos la reserva si falla el gasto
+    if (expErr) {
+      console.error("ERROR: No se pudo registrar el gasto de limpieza:", expErr.message, expErr.details, expErr.hint)
+      // No lanzamos el error para no bloquear la creación de la reserva, pero lo registramos detalladamente.
+    } else {
+      console.log("Gasto de limpieza registrado con éxito:", expenseRow.nombre, expenseRow.monto)
+    }
   }
 
   return mapRowToReservation(savedReservation)

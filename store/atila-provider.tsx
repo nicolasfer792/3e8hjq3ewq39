@@ -73,7 +73,9 @@ export function AtilaProvider({ children }: { children: React.ReactNode }) {
   const addReserva: Ctx["addReserva"] = async (payload) => {
     try {
       const saved = await createReservation(payload)
-      setState((s) => ({ ...s, reservas: [...s.reservas, saved] }))
+      // Después de crear la reserva (y su gasto de limpieza asociado),
+      // refrescamos todo el estado para que los gráficos se actualicen con los nuevos gastos.
+      await refresh()
       toast({ title: "Reserva creada", description: `Total: ${saved.total.toLocaleString("es-AR")}` })
       return saved
     } catch (error: any) {

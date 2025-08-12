@@ -27,30 +27,41 @@ function groupByPeriod(
   gastos: ReturnType<typeof useAtila>["state"]["gastos"],
   period: "semana" | "mes" | "anio",
 ) {
-  type Row = { key: string; ingresos: number; gastos: number; utilidad: number }
+  // Ahora incluimos 'ganancia' y 'perdida' como campos separados
+  type Row = { key: string; ingresos: number; gastos: number; ganancia: number; perdida: number }
   const map = new Map<string, Row>()
 
   const keyFor = (iso: string) => {
     const d = new Date(iso + "T00:00:00")
     if (period === "anio") return `${d.getFullYear()}`
     if (period === "mes") return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+    // Formato de semana: YYYY-MM-DD (inicio de semana)
+    // weekStartsOn: 1 para que la semana empiece en Lunes
     return format(startOfWeek(d, { weekStartsOn: 1 }), "yyyy-MM-dd")
   }
 
   reservas.forEach((r) => {
     const k = keyFor(r.fecha)
-    const row = map.get(k) ?? { key: k, ingresos: 0, gastos: 0, utilidad: 0 }
+    const row = map.get(k) ?? { key: k, ingresos: 0, gastos: 0, ganancia: 0, perdida: 0 }
     row.ingresos += r.total
     map.set(k, row)
   })
   gastos.forEach((g) => {
     const k = keyFor(g.fecha)
-    const row = map.get(k) ?? { key: k, ingresos: 0, gastos: 0, utilidad: 0 }
+    const row = map.get(k) ?? { key: k, ingresos: 0, gastos: 0, ganancia: 0, perdida: 0 }
     row.gastos += g.monto
     map.set(k, row)
   })
 
-  const rows = Array.from(map.values()).map((r) => ({ ...r, utilidad: r.ingresos - r.gastos }))
+  // Calculamos ganancia y pérdida por separado
+  const rows = Array.from(map.values()).map((r) => {
+    const utilidad = r.ingresos - r.gastos
+    return {
+      ...r,
+      ganancia: utilidad > 0 ? utilidad : 0,
+      perdida: utilidad < 0 ? Math.abs(utilidad) : 0, // Pérdida como valor positivo
+    }
+  })
   rows.sort((a, b) => a.key.localeCompare(b.key))
 
   return rows
@@ -140,9 +151,10 @@ export function ExpensesAndStats() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="ingresos" fill="#16a34a" name="Ingresos" />
+                <Bar dataKey="ingresos" fill="#047857" name="Ingresos" /> {/* Verde oscuro */}
                 <Bar dataKey="gastos" fill="#f97316" name="Gastos" />
-                <Bar dataKey="utilidad" fill="#e11d48" name="Utilidad" />
+                <Bar dataKey="ganancia" fill="#22c55e" name="Ganancia" /> {/* Verde vibrante */}
+                {/* La barra de "Pérdida" se ha eliminado */}
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -154,9 +166,10 @@ export function ExpensesAndStats() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="ingresos" stroke="#16a34a" />
+                <Line type="monotone" dataKey="ingresos" stroke="#047857" /> {/* Verde oscuro */}
                 <Line type="monotone" dataKey="gastos" stroke="#f97316" />
-                <Line type="monotone" dataKey="utilidad" stroke="#e11d48" />
+                <Line type="monotone" dataKey="ganancia" stroke="#22c55e" /> {/* Verde vibrante */}
+                {/* La línea de "Pérdida" se ha eliminado */}
               </LineChart>
             </ResponsiveContainer>
           </div>

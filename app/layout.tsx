@@ -13,7 +13,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Atila Salón - Dashboard de Reservas",
   description: "Sistema de gestión de reservas para Atila Salón de Fiestas",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
