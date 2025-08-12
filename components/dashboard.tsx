@@ -15,6 +15,8 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
+     
+
       <Tabs defaultValue="reservas" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="reservas">Reservas</TabsTrigger>

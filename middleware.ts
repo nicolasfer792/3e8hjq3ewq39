@@ -8,7 +8,6 @@ export async function middleware(request: NextRequest) {
 
   const hasValidCookies = !!(session && userId && loginTime)
 
-  // Verificar si han pasado más de 4 días (4 * 24 * 60 * 60 * 1000 ms)
   let isExpired = false
   if (loginTime) {
     const loginTimestamp = Number.parseInt(loginTime.value)
@@ -18,16 +17,12 @@ export async function middleware(request: NextRequest) {
 
   const isAuthenticated = hasValidCookies && !isExpired
 
-  // Rutas que requieren autenticación
-  const protectedPaths = ["/", "/finanzas", "/configuracion"]
-  const isProtectedPath = protectedPaths.some(
-    (path) => request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + "/"),
-  )
+  const isProtectedPath = request.nextUrl.pathname === "/"
 
-  // Si está en una ruta protegida y no está autenticado, redirigir al login
+  // Si está en ruta protegida y no autenticado, redirigir al login
   if (isProtectedPath && !isAuthenticated) {
     const response = NextResponse.redirect(new URL("/auth/login", request.url))
-    if (isExpired) {
+    if (isExpired || !hasValidCookies) {
       response.cookies.delete("admin_session")
       response.cookies.delete("admin_user_id")
       response.cookies.delete("admin_login_time")

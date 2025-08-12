@@ -21,7 +21,7 @@ export async function signInAdmin(prevState: any, formData: FormData) {
   if (username.toString() === "Atila30" && password.toString() === "Ferrari2020") {
     console.log("Using hardcoded credentials")
 
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const sessionToken = await bcrypt.hash(`admin-${Date.now()}`, 10)
     const fourDaysInSeconds = 60 * 60 * 24 * 4
     const expirationDate = new Date(Date.now() + fourDaysInSeconds * 1000)
@@ -79,7 +79,7 @@ export async function signInAdmin(prevState: any, formData: FormData) {
 
     await supabase.from("admin_users").update({ last_login: new Date().toISOString() }).eq("id", user.id)
 
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const sessionToken = await bcrypt.hash(`${user.id}-${Date.now()}`, 10)
 
     const fourDaysInSeconds = 60 * 60 * 24 * 4
@@ -117,14 +117,14 @@ export async function signInAdmin(prevState: any, formData: FormData) {
 }
 
 export async function signOut() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   cookieStore.delete("admin_session")
   cookieStore.delete("admin_user_id")
   cookieStore.delete("admin_login_time")
 }
 
 export async function isAuthenticated() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const session = cookieStore.get("admin_session")
   const userId = cookieStore.get("admin_user_id")
   const loginTime = cookieStore.get("admin_login_time")
@@ -164,4 +164,17 @@ export async function isAuthenticated() {
     cookieStore.delete("admin_login_time")
     return false
   }
+}
+
+export async function clearAllAuthCookies() {
+  const cookieStore = await cookies()
+
+  // Limpiar todas las cookies de autenticación
+  cookieStore.delete("admin_session")
+  cookieStore.delete("admin_user_id")
+  cookieStore.delete("admin_login_time")
+
+  // También limpiar cualquier cookie de Supabase que pueda existir
+  cookieStore.delete("sb-access-token")
+  cookieStore.delete("sb-refresh-token")
 }
