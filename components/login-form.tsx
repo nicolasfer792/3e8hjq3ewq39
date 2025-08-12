@@ -76,7 +76,7 @@ export default function LoginForm() {
               id="username"
               name="username"
               type="text"
-              placeholder="Atila30"
+              placeholder="Usuario123"
               required
               className="bg-[#1c1c1c] border-gray-800 text-white placeholder:text-gray-500"
             />
