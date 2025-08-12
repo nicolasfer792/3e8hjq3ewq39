@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,21 +32,13 @@ function SubmitButton() {
 
 export default function LoginForm() {
   const router = useRouter()
-  const [state, setState] = useState<any>({})
-  const [isPending, startTransition] = useTransition()
+  const [state, formAction] = useActionState(signInAdmin, null)
 
   useEffect(() => {
     if (state?.success) {
       router.push("/")
     }
   }, [state, router])
-
-  const handleSubmit = async (formData: FormData) => {
-    startTransition(async () => {
-      const result = await signInAdmin(state, formData)
-      setState(result)
-    })
-  }
 
   return (
     <div className="w-full max-w-md space-y-8">
@@ -55,14 +47,7 @@ export default function LoginForm() {
         <p className="text-lg text-gray-400">Acceso al panel de administración</p>
       </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          const formData = new FormData(e.currentTarget)
-          handleSubmit(formData)
-        }}
-        className="space-y-6"
-      >
+      <form action={formAction} className="space-y-6">
         {state?.error && (
           <div className="bg-red-500/10 border border-red-500/50 text-red-700 px-4 py-3 rounded">{state.error}</div>
         )}
@@ -76,7 +61,7 @@ export default function LoginForm() {
               id="username"
               name="username"
               type="text"
-              placeholder="Usuario123"
+              placeholder="Atila30"
               required
               className="bg-[#1c1c1c] border-gray-800 text-white placeholder:text-gray-500"
             />

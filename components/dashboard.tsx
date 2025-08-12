@@ -8,6 +8,7 @@ import { ExportMonthlyPDF } from "./export-monthly-pdf"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ExpensesAndStats } from "./expenses-and-stats"
 import { ConfigForm } from "./config-form"
+import { TrashBin } from "./trash-bin"
 
 export function Dashboard() {
   const [selectedDate, setSelectedDate] = React.useState<string>("")
@@ -15,9 +16,10 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="reservas" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="reservas">Reservas</TabsTrigger>
           <TabsTrigger value="finanzas">Finanzas</TabsTrigger>
+          <TabsTrigger value="papelera">Papelera</TabsTrigger>
           <TabsTrigger value="configuracion">Configuración</TabsTrigger>
         </TabsList>
 
@@ -38,6 +40,10 @@ export function Dashboard() {
 
         <TabsContent value="finanzas">
           <ExpensesAndStats />
+        </TabsContent>
+
+        <TabsContent value="papelera">
+          <TrashBin />
         </TabsContent>
 
         <TabsContent value="configuracion">
